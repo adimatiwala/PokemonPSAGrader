@@ -1,0 +1,10 @@
+numpy==1.26.4
+opencv-python==4.9.0.80
+scikit-image==0.23.2
+scikit-learn==1.4.2
+torch==2.3.0
+torchvision==0.18.0
+matplotlib==3.9.0
+requests==2.32.3
+beautifulsoup4==4.12.3
+tqdm==4.66.4
