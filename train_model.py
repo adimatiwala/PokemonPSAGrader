@@ -75,14 +75,14 @@ class CardGradingModel(nn.Module):
 def get_transforms(is_training=True):
     if is_training:
         return A.Compose([
-            A.RandomResizedCrop(224, 224, scale=(0.8, 1.0)),
+            A.RandomResizedCrop(size=(224, 224), scale=(0.8, 1.0)),
             A.RandomRotate90(p=0.5),
-            A.Flip(p=0.5),
-            A.ShiftScaleRotate(shift_limit=0.0625, scale_limit=0.1, rotate_limit=45, p=0.5),
+            A.HorizontalFlip(p=0.5),
+            A.Affine(rotate=45, translate_percent=0.0625, scale=(0.9, 1.1), p=0.5),
             A.OneOf([
-                A.ElasticTransform(alpha=120, sigma=120 * 0.05, alpha_affine=120 * 0.03, p=0.5),
+                A.ElasticTransform(alpha=120, sigma=120 * 0.05, p=0.5),
                 A.GridDistortion(p=0.5),
-                A.OpticalDistortion(distort_limit=1, shift_limit=0.5, p=0.5),
+                A.OpticalDistortion(distort_limit=1, p=0.5),
             ], p=0.3),
             A.OneOf([
                 A.GaussNoise(p=0.5),
@@ -94,16 +94,21 @@ def get_transforms(is_training=True):
         ])
     else:
         return A.Compose([
-            A.Resize(224, 224),
+            A.Resize(height=224, width=224),
             A.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
             ToTensorV2(),
         ])
 
-def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, num_epochs=30, device='cuda'):
+def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, num_epochs=15, device='cuda'):
     best_val_loss = float('inf')
     best_val_acc = 0.0
-    patience = 5
+    patience = 3  # Reduced from 5 to 3
     patience_counter = 0
+    
+    print(f"\nStarting training for {num_epochs} epochs...")
+    print(f"Early stopping patience: {patience} epochs")
+    print(f"Training samples: {len(train_loader.dataset)}")
+    print(f"Validation samples: {len(val_loader.dataset)}\n")
     
     for epoch in range(num_epochs):
         # Training phase
@@ -156,7 +161,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
         # Update learning rate
         scheduler.step(val_loss)
         
-        print(f'Epoch {epoch+1}/{num_epochs}:')
+        print(f'\nEpoch {epoch+1}/{num_epochs}:')
         print(f'Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%')
         print(f'Val Loss: {val_loss:.4f}, Val Acc: {val_acc:.2f}%')
         print(f'Learning Rate: {optimizer.param_groups[0]["lr"]:.6f}')
@@ -170,14 +175,16 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
                 'optimizer_state_dict': optimizer.state_dict(),
                 'val_acc': val_acc,
             }, 'best_model.pth')
-            print('Model saved!')
+            print('New best model saved!')
             patience_counter = 0
         else:
             patience_counter += 1
+            print(f'No improvement for {patience_counter} epochs')
             
         # Early stopping
         if patience_counter >= patience:
-            print(f'Early stopping triggered after {epoch + 1} epochs')
+            print(f'\nEarly stopping triggered after {epoch + 1} epochs')
+            print(f'Best validation accuracy: {best_val_acc:.2f}%')
             break
 
 def main():
@@ -203,12 +210,12 @@ def main():
     model = CardGradingModel().to(device)
     
     # Loss function and optimizer
-    criterion = nn.CrossEntropyLoss(label_smoothing=0.1)  # Add label smoothing
+    criterion = nn.CrossEntropyLoss(label_smoothing=0.1)
     optimizer = optim.AdamW(model.parameters(), lr=0.001, weight_decay=0.01)
     scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2, verbose=True)
     
     # Train the model
-    train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, num_epochs=30, device=device)
+    train_model(model, train_loader, val_loader, criterion, optimizer, scheduler, num_epochs=15, device=device)
 
 if __name__ == '__main__':
     main() 
