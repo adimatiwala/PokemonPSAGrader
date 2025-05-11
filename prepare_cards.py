@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 
-# Following Code took references from 
+# Took inspiration from https://github.com/rthorst/mint_condition/tree/master
 def crop_images(dir, grade):
     """
     The images have a grade at the top; automatically remove the grade.

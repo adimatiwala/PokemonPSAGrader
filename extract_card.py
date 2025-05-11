@@ -22,6 +22,9 @@ def expand_quad(quad, margin_pct=0.03):
     scale    = 1.0 + margin_pct
     return (quad - centroid) * scale + centroid
 
+
+# Took inspiration from https://github.com/NolanAmblard/Pokemon-Card-Scanner/tree/main
+# Took inspiration from https://learnopencv.com/contour-detection-using-opencv-python-c/
 def extract_card(img_path, out_path="card_crop.png",
                  debug=False, margin_pct=0.03):
     """

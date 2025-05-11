@@ -4,6 +4,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time, requests, os, sys
 
+
+# Took inspiration from https://github.com/rthorst/mint_condition/tree/master
 def scrape_ebay_psa_images(
     query="Pokemon Cards PSA",
     grade="10",
