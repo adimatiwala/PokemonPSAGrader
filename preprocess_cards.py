@@ -4,6 +4,10 @@ import os
 from tqdm import tqdm
 from skimage import filters, exposure, restoration
 from skimage.metrics import structural_similarity as ssim
+import pandas as pd
+import matplotlib.pyplot as plt
+import glob
+import seaborn as sns
 
 def enhance_image(img):
     """Enhance image quality with various preprocessing steps."""
@@ -243,6 +247,33 @@ def preprocess_dataset(input_dir='samples', output_dir='aligned_samples', size=(
     
     return features_dict
 
+def visualize_data(features_dict):
+  img_to_psa = {}
+  for psa_grade in range(1, 11):
+      # features_dict doesn't store the psa grade with the image, so tracing back
+      # through the paths to obtain the psa grade via the folder name
+      image_paths = glob.glob(f'aligned_samples/psa{psa_grade}/*.jpg')
+      for path in image_paths:
+          filename = os.path.basename(path)
+          img_to_psa[filename] = psa_grade
+
+
+  df = pd.DataFrame.from_dict(features_dict, orient='index')
+  df['psa_grade'] = df.index.map(img_to_psa)
+
+  df = df.dropna(subset=['psa_grade'])
+
+  # Convert to int
+  df['psa_grade'] = df['psa_grade'].astype(int)
+
+  # plot corner sharpness vs PSA grade
+  plt.figure(figsize=(10, 6))
+  sns.boxplot(x='psa_grade', y='corner_sharpness', data=df)
+  plt.title('Corner Sharpness Distribution by PSA Grade')
+  plt.xlabel('PSA Grade')
+  plt.ylabel("Corner Sharpness")
+  plt.show()
+
 if __name__ == '__main__':
     features = preprocess_dataset()
     print("Feature extraction completed. Sample features:")
@@ -250,3 +281,4 @@ if __name__ == '__main__':
         print(f"\nImage: {img_name}")
         for key, value in feat.items():
             print(f"{key}: {value:.4f}")
+    visualize_data(features)
