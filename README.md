@@ -48,3 +48,16 @@ python main.py --image directory/path/to/image.jpg
 ```bash
 # Basic usage
 python main.py --image user_input.jpg
+```
+
+## File Organization
+
+The project consists of several key files:
+- `train_model.py`: Model definition and training logic
+- `preprocess_cards.py`: Card preprocessing and feature extraction
+- `extract_card.py`: Card detection and alignment from raw images
+- `main.py`: Inference script for grading cards
+- `best_model.pth`: Saved model weights (generated during training)
+- `requirements.txt`: Project dependencies
+
+Images should be organized in folders named by PSA grade (psa1-psa10) for training.
