@@ -2,17 +2,49 @@
 
 Contributors: Aditya Matiwala, Adrian Lara, Kashvi Panjolia
 
-To upload your own Pokémon card for grading by our model, clone the repository into your environment. Then, download the following packages using the pip installer:
+A system for automatically estimating PSA grades of Pokémon cards from images using a ResNet18 Model
 
-* PyTorch
-* Selenium
-* OpenCV
-* Numpy
-* Tqdm
-* Scikit-Image
-* Albumentations
+## Overview
 
-Next, upload your image to **INSERT DIRECTORY HERE** for grading. Run the image through the extract_card.py file so the program will know where your card is located in the image. Next, run the preprocess_cards.py file to clean up the image and ensure it will be readable by this model.
+This project uses a ResNet18-based convolutional neural network to predict the PSA grade (1-10) of Pokémon cards from images. The system:
+
+1. Preprocesses card images to align and normalize them
+2. Extracts visual features relevant to grading (corners, edges, centering, etc.)
+3. Feeds these into a trained neural network to predict the PSA grade
+
+## Installation
+
+### Requirements
+
+To install all dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Model Training
+
+To train the model:
+
+```bash
+python train_model.py
+```
+
+## Using the Grader
+
+To predict the PSA grade of a single card image:
+
+```bash
+python main.py --image directory/path/to/image.jpg
+```
+
+### Command Line Option
+
+- `--image`: Path to the card image file (JPEG or PNG)
 
 
-Finally, run the image through train_model.py to run the model on your image and obtain a PSA score for your own Pokémon card.
+### Example Usage
+
+```bash
+# Basic usage
+python main.py --image user_input.jpg
