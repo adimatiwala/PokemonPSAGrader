@@ -26,7 +26,7 @@ def expand_quad(quad, margin_pct=0.03):
 # Took inspiration from https://github.com/NolanAmblard/Pokemon-Card-Scanner/tree/main
 # Took inspiration from https://learnopencv.com/contour-detection-using-opencv-python-c/
 def extract_card(img_path, out_path="card_crop.png",
-                 debug=False, margin_pct=0.03):
+                 debug=False, margin_pct=0.03, download=True):
     """
     Detects a trading card in a snapshot, warps it square, and saves `out_path`.
     """
@@ -78,7 +78,9 @@ def extract_card(img_path, out_path="card_crop.png",
     M       = cv2.getPerspectiveTransform(src_pts, dst_pts)
     warp    = cv2.warpPerspective(orig, M, (dst_w, dst_h))
 
-    cv2.imwrite(out_path, warp)
+    if download:
+        cv2.imwrite(out_path, warp)
+        print(f"Saved: {out_path}")
 
     if debug:
         debug_img = orig.copy()
@@ -89,10 +91,10 @@ def extract_card(img_path, out_path="card_crop.png",
         cv2.imshow("Warped card", warp)
         cv2.waitKey(0); cv2.destroyAllWindows()
 
-    print(f"Saved: {out_path}")
+    
     return warp
 
 if __name__ == "__main__":
-    in_path  = "IMG_9245.jpg"
+    in_path  = "user_input_2.jpg"
     out_path = "card_crop.jpg"
-    extract_card(in_path, out_path, debug=True)
+    extract_card(in_path, out_path, debug=True, download=True)
